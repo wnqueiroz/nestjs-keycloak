@@ -14,6 +14,12 @@ type LoginResponse = {
   expires_in: number;
 };
 
+type UserInfoResponse = {
+  sub: string;
+  email_verified: boolean;
+  preferred_username: string;
+};
+
 @Injectable()
 export class KeycloakService {
   private baseURL: string;
@@ -42,6 +48,21 @@ export class KeycloakService {
           username,
           password,
         }),
+      ),
+    );
+
+    return data;
+  }
+
+  async getUserInfo(accessToken: string): Promise<UserInfoResponse> {
+    const { data } = await firstValueFrom(
+      this.httpService.get(
+        `${this.baseURL}/auth/realms/${this.realm}/protocol/openid-connect/userinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       ),
     );
 

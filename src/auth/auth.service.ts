@@ -18,4 +18,8 @@ export class AuthService {
       expires_in,
     };
   }
+
+  async getProfile(accessToken: string) {
+    return this.keycloakService.getUserInfo(accessToken);
+  }
 }
