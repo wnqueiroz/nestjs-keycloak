@@ -84,4 +84,17 @@ export class KeycloakService {
 
     return data;
   }
+
+  async logout(refreshToken: string) {
+    await firstValueFrom(
+      this.httpService.post(
+        `${this.baseURL}/auth/realms/${this.realm}/protocol/openid-connect/logout`,
+        new URLSearchParams({
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          refresh_token: refreshToken,
+        }),
+      ),
+    );
+  }
 }
