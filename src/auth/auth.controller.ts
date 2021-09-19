@@ -1,3 +1,4 @@
+import { HttpCode, HttpStatus } from '@nestjs/common';
 import {
   Body,
   Request,
@@ -15,6 +16,10 @@ type LoginRequestBody = {
 };
 
 type RefreshTokenRequestBody = {
+  refresh_token: string;
+};
+
+type LogoutRequestBody = {
   refresh_token: string;
 };
 
@@ -44,5 +49,13 @@ export class AuthController {
     const { refresh_token: refreshToken } = body;
 
     return this.authService.refreshToken(refreshToken);
+  }
+
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Body() body: LogoutRequestBody) {
+    const { refresh_token: refreshToken } = body;
+
+    await this.authService.logout(refreshToken);
   }
 }

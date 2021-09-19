@@ -28,7 +28,9 @@ export class AuthService {
   }
 
   async getProfile(accessToken: string) {
-    return this.keycloakService.getUserInfo(accessToken);
+    return this.keycloakService.getUserInfo(accessToken).catch(() => {
+      throw new UnauthorizedException();
+    });
   }
 
   async refreshToken(refreshToken: string): Promise<LoginResponse> {
@@ -43,5 +45,11 @@ export class AuthService {
       expires_in,
       refresh_expires_in,
     };
+  }
+
+  async logout(refreshToken: string) {
+    await this.keycloakService.logout(refreshToken).catch(() => {
+      throw new UnauthorizedException();
+    });
   }
 }
