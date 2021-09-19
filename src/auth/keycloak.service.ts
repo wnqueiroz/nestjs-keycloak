@@ -68,4 +68,20 @@ export class KeycloakService {
 
     return data;
   }
+
+  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+    const { data } = await firstValueFrom(
+      this.httpService.post(
+        `${this.baseURL}/auth/realms/${this.realm}/protocol/openid-connect/token`,
+        new URLSearchParams({
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+        }),
+      ),
+    );
+
+    return data;
+  }
 }

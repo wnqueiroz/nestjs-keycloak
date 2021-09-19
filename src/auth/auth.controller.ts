@@ -14,6 +14,10 @@ type LoginRequestBody = {
   password: string;
 };
 
+type RefreshTokenRequestBody = {
+  refresh_token: string;
+};
+
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -33,5 +37,12 @@ export class AuthController {
     const [, accessToken] = authorization.split(' ');
 
     return this.authService.getProfile(accessToken);
+  }
+
+  @Post('/refresh')
+  refreshToken(@Body() body: RefreshTokenRequestBody) {
+    const { refresh_token: refreshToken } = body;
+
+    return this.authService.refreshToken(refreshToken);
   }
 }
