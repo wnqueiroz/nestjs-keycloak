@@ -28,6 +28,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/login')
+  @HttpCode(HttpStatus.OK)
   login(@Body() body: LoginRequestBody) {
     const { username, password } = body;
 
@@ -45,6 +46,7 @@ export class AuthController {
   }
 
   @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
   refreshToken(@Body() body: RefreshTokenRequestBody) {
     const { refresh_token: refreshToken } = body;
 

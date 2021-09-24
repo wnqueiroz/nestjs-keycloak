@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 
 import { KeycloakService } from './keycloak.service';
 
@@ -11,6 +11,8 @@ type LoginResponse = {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(private readonly keycloakService: KeycloakService) {}
 
   async login(username: string, password: string): Promise<LoginResponse> {
@@ -28,6 +30,8 @@ export class AuthService {
   }
 
   async getProfile(accessToken: string) {
+    this.logger.log('Getting user profile...');
+
     return this.keycloakService.getUserInfo(accessToken).catch(() => {
       throw new UnauthorizedException();
     });
