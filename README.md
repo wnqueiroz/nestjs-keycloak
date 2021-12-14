@@ -1,73 +1,151 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# wnqueiroz/nestjs-keycloak
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Project using [NestJS](https://nestjs.com/) version 8 to implement an authentication application with [Keycloak](https://www.keycloak.org/) integration! 🚀
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table Of Contents
 
-## Description
+- [Overview](#overview)
+- [Pre-requisites](#pre-requisites)
+- [Up and Running!](#up-and-running)
+  - [Keycloak](#keycloak)
+    - [Creating the environment variables file](#creating-the-environment-variables-file)
+    - [Finishing Keycloak settings](#finishing-keycloak-settings)
+    - [Getting the Realm's Public RSA Key](#getting-the-realms-public-rsa-key)
+    - [Getting the Client Secret](#getting-the-client-secret)
+    - [Creating the test user](#creating-the-test-user)
+  - [NestJS](#nestjs)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Overview
 
-## Installation
+The API implements 4 basic endpoints that can exist in an authentication mechanism, namely:
 
-```bash
-$ npm install
+- `POST /auth/login`: To log in properly,
+- `GET /auth/me`: To collect user information (requires login to be performed);
+- `POST /auth/refresh`: To generate a new access token (without needing to enter the credentials again);
+- `POST /auth/logout`: To invalidate the user's session on Keycloak (and also the tokens generated previously);
+
+Our Keycloak has a simple configuration, with a client called `nestjs-keycloak` (of the confidential type, so we can have a **Client ID** and a **Client Secret**).
+
+We will be using the [OpenID Connect 1.0 specification](https://openid.net/specs/openid-connect-core-1_0.html) to integrate with Keycloak.
+
+## Pre-requisites
+
+In this walkthrough it's assumed that you have the tools installed:
+
+- [Docker](https://www.docker.com/get-started): 20.10.11 or higher.
+- [docker-compose](https://docs.docker.com/compose/install/): 1.29.2 or higher.
+
+## Up and Running!
+
+There is already a `docker-compose.yaml` configured in this project. However, it is important to follow the tutorial below to obtain the correct environment variables and settings for the project to work.
+
+### Keycloak
+
+Let's finish configuring Keycloak. Thanks to the [nestjs-keycloak-realm.json](./nestjs-keycloak-realm.json) file we won't need to waste so much time in this configuration.
+
+In the terminal, in the root of the project, execute the command to start the Keycloak:
+
+```sh
+docker-compose up -d keycloak
 ```
 
-## Running the app
+Let's check the logs if Keycloak has started:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```sh
+docker-compose logs -f keycloak | grep -i "Admin console listening on"
 ```
 
-## Test
+Wait until a message appears on terminal output.
 
-```bash
-# unit tests
-$ npm run test
+#### Creating the environment variables file
 
-# e2e tests
-$ npm run test:e2e
+Copy the example environment variables file from this repository into a `.env` file at the root of the project:
 
-# test coverage
-$ npm run test:cov
+```sh
+cp .env.example .env
 ```
 
-## Support
+> This file is needed for us to run the API from the `docker-compose.yaml`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Let's replace what's in `<REPLACE_ME>` with the information we got from our Keycloak.**
 
-## Stay in touch
+#### Finishing Keycloak settings
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Access the address: http://localhost:8080. You will see the Keycloak home screen.
 
-## License
+Go to **Administration Console**, and log in with the credentials:
 
-Nest is [MIT licensed](LICENSE).
+- Username or email: admin
+- Password: admin
+
+You will directly access the Realm that has been configured with the help of [nestjs-keycloak-realm.json](./nestjs-keycloak-realm.json).
+
+We now need:
+
+1. Obtain the Realm's public RSA key;
+1. Reset client secret of `nestjs-keycloak` client;
+1. Create a test user for our Realm.
+
+#### Getting the Realm's Public RSA Key
+
+Access the address: http://localhost:8080/auth/admin/master/console/#/realms/nestjs-keycloak/keys.
+
+In the RSA key with the `rsa-generated` provider, click **Public Key**.
+
+Copy the displayed content and paste it into the `.env` file we created earlier, replacing the value `<REPLACE_ME>` with the key obtained from the variable `KEYCLOAK_REALM_RSA_PUBLIC_KEY`. It will look like:
+
+```diff
+- KEYCLOAK_REALM_RSA_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n<REPLACE_ME>\n-----END PUBLIC KEY-----"
++ KEYCLOAK_REALM_RSA_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlOSbkRWDCFLl0dslyU1aYkACfos+wib22LHWTz9cgd+RBByS43wmxKNe90b5g6S0RMJvBUpcDnnUNMLXgP7EyfUluWriiUpyWXBLclhtWHz49QZYAOuR4T+4C2pmCfAkefDz5tbN+SQuRyZcJzZ/cLboKfKzwK7Nlud6NRvYMypOxmSNaDuQAKWH8BciT6ahpSFFgPWMBuGD5oz9DYqZKNNaXedmVLqL911EC0kH0J54AOjM4OKuo+sTUji6eJFCJDMynnJIJyTLFDRrhLM1aD+n77q0k59Bm/EwtP77tDT5uR0AWfhErdsZQV863TjBDcTEsxveEtOJmMF9L/6a8QIDAQAB\n-----END PUBLIC KEY-----"
+```
+
+#### Getting the Client Secret
+
+From the left bar, go to `Clients / nestjs-keycloak / Credentials` and click on **Regenerate Secret**.
+
+Copy the displayed content and paste it into the `.env` file we created earlier, replacing the `<REPLACE_ME>` value with the secret obtained from the `KEYCLOAK_CLIENT_SECRET` variable. It will look like:
+
+```diff
+- KEYCLOAK_CLIENT_SECRET="<REPLACE_ME>"
++ KEYCLOAK_CLIENT_SECRET="2387cbc8-7bef-4f09-bd05-7f97ca4ae813"
+```
+
+#### Creating the test user
+
+Let's create a new user, click on the address: http://localhost:8080/auth/admin/master/console/#/create/user/nestjs-keycloak
+
+1. Enter the information:
+
+   - Username: test
+   - Email: test@test.com
+
+   > **Leave the other options as they are.**
+
+2. Click `Save`.
+
+3. Still on the newly created user screen, click on `Credentials` and enter the data:
+   - Password: test
+   - Password Confirmation: test
+   - Temporary: OFF (switch to OFF)
+
+Click **Set Password** and confirm the operation.
+
+After that, we are able to launch our application! 🚀 🤘
+
+### NestJS
+
+Let's launch our application. Run the command in the terminal:
+
+```sh
+docker-compose up -d app
+```
+
+Wait for the application to build and run.
+
+Look at the logs with:
+
+```sh
+docker-compose logs -f app
+```
+
+After identifying that the application has started, you can either "play" with the HTTP requests contained in the [client.http](./client.http) file or import the [Postman](https://www.postman.com/) Collection available in the [nestjs-keycloak.postman_collection.json](./nestjs-keycloak.postman_collection.json) file.
