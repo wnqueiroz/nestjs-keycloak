@@ -1,0 +1,46 @@
+@base_url=http://localhost:3000
+
+# @name login
+POST {{base_url}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "test@test.com",
+    "password": "test"
+}
+
+###
+
+@access_token = {{login.response.body.access_token}}
+@refresh_token = {{login.response.body.refresh_token}}
+
+###
+
+# @name me
+GET {{base_url}}/auth/me HTTP/1.1
+Authorization: Bearer {{access_token}}
+
+###
+
+# @name refresh
+POST {{base_url}}/auth/refresh HTTP/1.1
+Content-Type: application/json
+
+{
+    "refresh_token": "{{refresh_token}}"
+}
+
+###
+
+@access_token = {{login.response.body.access_token}}
+@refresh_token = {{login.response.body.refresh_token}}
+
+###
+
+# @name logout
+POST {{base_url}}/auth/logout HTTP/1.1
+Content-Type: application/json
+
+{
+    "refresh_token": "{{refresh_token}}"
+}

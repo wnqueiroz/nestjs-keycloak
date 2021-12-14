@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  keycloak:
+    image: jboss/keycloak:15.0.2
+    ports:
+      - 8080:8080
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: h2
+      KEYCLOAK_IMPORT: /tmp/nestjs-keycloak-realm.json
+    volumes:
+      - ./nestjs-keycloak-realm.json:/tmp/nestjs-keycloak-realm.json
+
+  app:
+    build: .
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    ports:
+      - 3000:3000
+    depends_on:
+      - keycloak
+    environment:
+      NODE_ENV: development
+      KEYCLOAK_BASE_URL: 'http://keycloak:8080'
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_REALM_RSA_PUBLIC_KEY: ${KEYCLOAK_REALM_RSA_PUBLIC_KEY}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+
+volumes:
+  node_modules:
